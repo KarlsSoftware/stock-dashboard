@@ -1,12 +1,11 @@
-import TradingViewWidget from "./tradingViewWidget";
-
+import StockDashboard from "./stockDashboard";
 
 export default function Home() {
   return (
     <div>
       <main className="p-8">
         <div className="h-[500px]">
-          <TradingViewWidget symbol="NASDAQ:AAPL" />
+          <StockDashboard/>
         </div>
       </main>
     </div>
