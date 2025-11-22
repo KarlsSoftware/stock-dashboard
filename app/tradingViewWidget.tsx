@@ -26,16 +26,20 @@ function TradingViewWidget({ symbol }: Props) {
     script.async = true;
 
     script.innerHTML = JSON.stringify({
-      autosize: true, // Chart fills its container
-      symbol: symbol, // Which stock to show (from props!)
-      interval: "D", // D = Daily candles
-      timezone: "Etc/UTC", // Timezone for timestamps
-      theme: "light", // Light or dark theme
-      style: "1", // Chart style (1 = candles)
-      locale: "en", // Language
-      allow_symbol_change: true, // User can change symbol in widget
-      save_image: true, // Allow screenshot button
-      hide_side_toolbar: true, // Cleaner look
+      autosize: true,
+      symbol: symbol,
+      interval: "D",
+      timezone: "Etc/UTC",
+      theme: "light",
+      style: "1",
+      locale: "en",
+      allow_symbol_change: true,
+      save_image: false,
+      hide_side_toolbar: true,
+      hide_top_toolbar: false,
+      toolbar_bg: "#FFFFFF",
+      gridLineColor: "#E8E8E8",
+      backgroundColor: "#FFFFFF",
     });
 
     container.current.appendChild(script);
