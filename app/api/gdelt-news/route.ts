@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     gdeltUrl.searchParams.set('query', `(${keywords})`);
     gdeltUrl.searchParams.set('sourcelang', 'English');
     gdeltUrl.searchParams.set('mode', 'ArtList');
-    gdeltUrl.searchParams.set('maxrecords', '10'); // Limit to 10 articles for clean UI
+    gdeltUrl.searchParams.set('maxrecords', '30'); // Fetch 30 articles for scrollable view
     gdeltUrl.searchParams.set('format', 'JSON');
 
     console.log('Fetching GDELT news with URL:', gdeltUrl.toString());

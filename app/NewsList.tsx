@@ -63,7 +63,7 @@ export default function NewsList({ keywords, commodityName }: Props) {
   };
 
   return (
-    <div className="bg-[#F5F5F5] p-3 pt-0">
+    <div className="bg-[#F5F5F5] p-3 mt-8">
       <div className="border border-[#D0D0D0] bg-white">
         {/* Header */}
         <div className="border-b border-[#D0D0D0] px-4 py-3">
@@ -72,8 +72,8 @@ export default function NewsList({ keywords, commodityName }: Props) {
           </h3>
         </div>
 
-        {/* Content */}
-        <div className="px-4 py-3">
+        {/* Content - Scrollable Container */}
+        <div className="px-4 py-3 h-[480px] overflow-y-auto">
           {loading && (
             <div className="flex items-center gap-2 py-4">
               <div className="w-3 h-3 border-2 border-[#D0D0D0] border-t-black animate-spin" />

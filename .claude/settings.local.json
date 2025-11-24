@@ -4,7 +4,8 @@
       "WebFetch(domain:www.tradingview.com)",
       "mcp__ide__getDiagnostics",
       "WebSearch",
-      "WebFetch(domain:www.marketaux.com)"
+      "WebFetch(domain:www.marketaux.com)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

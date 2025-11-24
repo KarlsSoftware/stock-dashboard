@@ -16,7 +16,7 @@
 import { useState, useMemo } from 'react';
 import LightweightChart from "./lightweightChart";
 import CustomSelect from "./CustomSelect";
-import NewsSection from "./NewsSection";
+import NewsList from "./NewsList";
 import { commodityCategories } from "./commodityConfig";
 
 export default function StockDashboard() {
@@ -40,7 +40,7 @@ export default function StockDashboard() {
         <div className="max-w-[1200px] mx-auto px-5 md:px-10">
           <div className="h-16 flex items-center">
             <h4 className="font-[family-name:var(--font-playfair)] text-[20px] font-semibold tracking-wide uppercase text-black">
-              Commodities Dashboard
+              Commodities & Stocks Dashboard
             </h4>
           </div>
         </div>
@@ -95,11 +95,10 @@ export default function StockDashboard() {
           commodityName={selectedCommodity.name}
         />
 
-        {/* News Section with Tabs */}
-        <NewsSection
+        {/* News Section */}
+        <NewsList
           keywords={selectedCommodity.keywords}
           commodityName={selectedCommodity.name}
-          symbol={selectedCommodity.symbol}
         />
       </main>
 
