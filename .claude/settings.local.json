@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:www.tradingview.com)"
+      "WebFetch(domain:www.tradingview.com)",
+      "mcp__ide__getDiagnostics",
+      "WebSearch",
+      "WebFetch(domain:www.marketaux.com)"
     ],
     "deny": [],
     "ask": []
