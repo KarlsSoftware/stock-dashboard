@@ -4,7 +4,7 @@
  * GDELT is a free news database that provides real-time news articles
  * from around the world. This endpoint searches for commodity-related news.
  *
- * URL: /api/gdelt-news?keywords=gold+prices+OR+gold+market
+ * URL: /api/gdelt-news?keywords=gold+prices+OR+gold+market // search for "gold prices" or "gold market"
  */
 
 import { NextResponse } from 'next/server';
@@ -29,8 +29,6 @@ export async function GET(request: Request) {
     gdeltUrl.searchParams.set('maxrecords', '30'); // Fetch 30 articles for scrollable view
     gdeltUrl.searchParams.set('format', 'JSON');
 
-    console.log('Fetching GDELT news with URL:', gdeltUrl.toString());
-
     // Fetch news from GDELT
     const response = await fetch(gdeltUrl.toString(), {
       next: { revalidate: 300 } // Cache for 5 minutes
@@ -43,7 +41,6 @@ export async function GET(request: Request) {
     }
 
     const text = await response.text();
-    console.log('GDELT raw response:', text.substring(0, 500)); // Log first 500 chars
 
     let data;
     try {
@@ -52,12 +49,9 @@ export async function GET(request: Request) {
       console.error('JSON parse error:', parseError);
       throw new Error('Invalid JSON response from GDELT');
     }
-
-    console.log('GDELT parsed data keys:', Object.keys(data));
-
+;
     // Extract articles from response
     const articles = data.articles || [];
-    console.log('Found articles count:', articles.length);
 
     // Transform to simplified format for frontend
     const news = articles.map((article: any) => ({

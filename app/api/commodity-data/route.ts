@@ -4,7 +4,7 @@
  * This endpoint fetches historical price data for commodity futures
  * from an external data source and transforms it for chart display.
  *
- * URL: /api/commodity-data?symbol=GC=F&interval=1day
+ * URL: /api/commodity-data?symbol=GC=F&interval=1day (query string after the ?)
  */
 
 import { NextResponse } from 'next/server';
@@ -52,7 +52,7 @@ export async function GET(request: Request) {
       headers: {
         'User-Agent': 'Mozilla/5.0', // Required by API
       },
-      next: { revalidate: 300 } // Cache response for 5 minutes
+      next: { revalidate: 120 } // Cache response for 5 minutes
     });
 
     if (!response.ok) {
@@ -88,7 +88,7 @@ export async function GET(request: Request) {
       low: quote.low?.[index] || quote.close?.[index] || 0,
       close: quote.close?.[index] || 0,
       value: quote.close?.[index] || 0,
-    })).filter((item: any) => item.close > 0); // Remove invalid data points
+    })).filter((item: any) => item.close > 0); // Remove invalid data points (convert null to 0)
 
     // Return formatted data to the client
     return NextResponse.json({
@@ -113,4 +113,3 @@ export async function GET(request: Request) {
     );
   }
 }
-dd
