@@ -26,6 +26,10 @@ type Props = {
   commodityName: string; // e.g., "Gold" or "Apple Inc."
   isStock?: boolean;     // true if stock, false/undefined if commodity
   exchange?: string;     // Exchange name for stocks (e.g., "NASDAQ")
+  // Watchlist props
+  isInWatchlist: boolean;
+  onAddToWatchlist: () => void;
+  onRemoveFromWatchlist: () => void;
 };
 
 type Timeframe = '1day' | '1week' | '1month' | '1h' | '4h' | '1year' | '3year' | '5year' | '10year';
@@ -43,7 +47,15 @@ const timeframes: { label: string; value: Timeframe }[] = [
   { label: '10Y', value: '10year' },
 ];
 
-export default function LightweightChart({ symbol, commodityName, isStock = false, exchange }: Props) {
+export default function LightweightChart({
+  symbol,
+  commodityName,
+  isStock = false,
+  exchange,
+  isInWatchlist,
+  onAddToWatchlist,
+  onRemoveFromWatchlist
+}: Props) {
   // Refs to access DOM element and chart instance
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<any>(null);
@@ -226,6 +238,33 @@ export default function LightweightChart({ symbol, commodityName, isStock = fals
             {error && (
               <span className="text-[13px] text-[#B85C00]">{error}</span>
             )}
+
+            {/* Watchlist Button */}
+            <button
+              onClick={() => {
+                if (isInWatchlist) {
+                  onRemoveFromWatchlist();
+                } else {
+                  onAddToWatchlist();
+                }
+              }}
+              className={`flex flex-col items-start gap-0 px-2 py-1 border transition-colors duration-100 ${
+                isInWatchlist
+                  ? 'bg-[#ed8008] text-black border-[#ed8008]'
+                  : 'bg-white text-[#666666] border-[#D0D0D0] hover:bg-[#F5F5F5]'
+              }`}
+              aria-label={isInWatchlist ? "Remove from browser storage" : "Save to browser storage"}
+            >
+              <div className="flex items-center gap-1">
+                <span className="text-[13px]">{isInWatchlist ? '★' : '☆'}</span>
+                <span className="text-[11px] font-medium uppercase tracking-wide">
+                  {isInWatchlist ? 'Saved' : 'Save'}
+                </span>
+              </div>
+              <span className="text-[9px] text-[#666666]">
+                Browser Storage
+              </span>
+            </button>
           </div>
         </div>
 

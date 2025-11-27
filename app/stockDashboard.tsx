@@ -21,13 +21,15 @@ import LightweightChart from "./lightweightChart";
 import CustomSelect from "./CustomSelect";
 import NewsList from "./NewsList";
 import StockSearch from "./StockSearch";
+import Watchlist from "./Watchlist";
+import { WatchlistProvider, useWatchlist } from './hooks/useWatchlist';
 import { commodityCategories } from "./commodityConfig";
 import { generateStockKeywords } from "./utils/generateStockKeywords";
 
 // TypeScript: Define mode type
 type Mode = 'commodity' | 'stock';
 
-export default function StockDashboard() {
+function StockDashboardContent() {
   // STATE 1: Mode (are we viewing a commodity or a stock?)
   const [mode, setMode] = useState<Mode>('commodity');
 
@@ -41,6 +43,9 @@ export default function StockDashboard() {
     name: string;
     exchange: string;
   } | null>(null);
+
+  // Watchlist hook for add/remove/check operations
+  const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
 
   // Get list of commodities for the selected category
   // useMemo prevents recalculation unless selectedCategory changes
@@ -130,12 +135,52 @@ export default function StockDashboard() {
             />
         </div>
 
+        {/* Watchlist */}
+        <div className="bg-[#F5F5F5] p-3 mb-8">
+          <div className="border border-[#D0D0D0] bg-white overflow-hidden">
+            <Watchlist
+              onSelectItem={(item) => {
+                if (item.type === 'commodity') {
+                  // Find the commodity in the config by symbol
+                  for (const category of commodityCategories) {
+                    const commodity = category.commodities.find(c => c.symbol === item.symbol);
+                    if (commodity) {
+                      setSelectedCategory(category.name);
+                      setSelectedCommodity(commodity);
+                      setMode('commodity');
+                      break;
+                    }
+                  }
+                } else {
+                  // Stock mode
+                  setSelectedStock({
+                    symbol: item.symbol,
+                    name: item.name,
+                    exchange: item.exchange || ''
+                  });
+                  setMode('stock');
+                }
+              }}
+            />
+          </div>
+        </div>
+
         {/* Main Chart Area */}
         <LightweightChart
           symbol={displaySymbol}
           commodityName={displayName}
           isStock={mode === 'stock'}
           exchange={mode === 'stock' && selectedStock ? selectedStock.exchange : undefined}
+          isInWatchlist={isInWatchlist(displaySymbol)}
+          onAddToWatchlist={() => {
+            addToWatchlist({
+              symbol: displaySymbol,
+              name: displayName,
+              type: mode,
+              exchange: mode === 'stock' && selectedStock ? selectedStock.exchange : undefined
+            });
+          }}
+          onRemoveFromWatchlist={() => removeFromWatchlist(displaySymbol)}
         />
 
         {/* News Section */}
@@ -155,5 +200,13 @@ export default function StockDashboard() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function StockDashboard() {
+  return (
+    <WatchlistProvider>
+      <StockDashboardContent />
+    </WatchlistProvider>
   );
 }
