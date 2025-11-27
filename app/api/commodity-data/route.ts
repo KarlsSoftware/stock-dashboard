@@ -16,6 +16,10 @@ const intervalMap: Record<string, string> = {
   '1day': '1d',
   '1week': '1wk',
   '1month': '1mo',
+  '1year': '1d',
+  '3year': '1wk',
+  '5year': '1mo',
+  '10year': '1mo',
 };
 
 // How far back to fetch data for each interval
@@ -25,6 +29,10 @@ const rangeMap: Record<string, string> = {
   '1day': '6mo',   // 6 months of daily data
   '1week': '2y',   // 2 years of weekly data
   '1month': '5y',  // 5 years of monthly data
+  '1year': '1y',   // 1 year of daily data
+  '3year': '3y',   // 3 years of weekly data
+  '5year': '5y',   // 5 years of monthly data
+  '10year': '10y', // 10 years of monthly data
 };
 
 // This function runs when someone visits /api/commodity-data

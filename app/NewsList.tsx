@@ -83,7 +83,7 @@ export default function NewsList({ keywords, commodityName }: Props) {
 
           {error && (
             <div className="py-4">
-              <span className="text-[13px] text-[#B85C00]">Error: {error}</span>
+              <span className="text-[13px] text-[#B85C00]">{error}</span>
             </div>
           )}
 

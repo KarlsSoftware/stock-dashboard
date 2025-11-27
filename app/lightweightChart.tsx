@@ -22,11 +22,13 @@
 import { useEffect, useRef, useState } from 'react';
 
 type Props = {
-  symbol: string;        // e.g., "GC=F"
-  commodityName: string; // e.g., "Gold"
+  symbol: string;        // e.g., "GC=F" or "AAPL"
+  commodityName: string; // e.g., "Gold" or "Apple Inc."
+  isStock?: boolean;     // true if stock, false/undefined if commodity
+  exchange?: string;     // Exchange name for stocks (e.g., "NASDAQ")
 };
 
-type Timeframe = '1day' | '1week' | '1month' | '1h' | '4h';
+type Timeframe = '1day' | '1week' | '1month' | '1h' | '4h' | '1year' | '3year' | '5year' | '10year';
 
 // Available timeframe options
 const timeframes: { label: string; value: Timeframe }[] = [
@@ -35,9 +37,13 @@ const timeframes: { label: string; value: Timeframe }[] = [
   { label: '1D', value: '1day' },
   { label: '1W', value: '1week' },
   { label: '1M', value: '1month' },
+  { label: '1Y', value: '1year' },
+  { label: '3Y', value: '3year' },
+  { label: '5Y', value: '5year' },
+  { label: '10Y', value: '10year' },
 ];
 
-export default function LightweightChart({ symbol, commodityName }: Props) {
+export default function LightweightChart({ symbol, commodityName, isStock = false, exchange }: Props) {
   // Refs to access DOM element and chart instance
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<any>(null);
@@ -180,7 +186,11 @@ export default function LightweightChart({ symbol, commodityName }: Props) {
               </h3>
               <span className="text-[11px] text-[#666666] hidden sm:inline">·</span>
               <span className="text-[11px] text-[#666666]">
-                {symbol} · Front Month Futures · {currency}
+                {isStock && exchange ? (
+                  `${symbol} · ${exchange} · ${currency}`
+                ) : (
+                  `${symbol} · Front Month Futures · ${currency}`
+                )}
               </span>
             </div>
 
@@ -214,7 +224,7 @@ export default function LightweightChart({ symbol, commodityName }: Props) {
               </div>
             )}
             {error && (
-              <span className="text-[11px] text-[#B85C00]">Error: {error}</span>
+              <span className="text-[13px] text-[#B85C00]">{error}</span>
             )}
           </div>
         </div>

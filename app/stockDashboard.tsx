@@ -2,14 +2,17 @@
  * Stock Dashboard Component
  *
  * Main dashboard that displays:
- * - Category and commodity selector dropdowns
+ * - Stock search with autocomplete
+ * - Category and commodity selector dropdowns (commodity mode)
  * - Price chart with timeframe controls
- * - Tabbed news section (Commodity News + Market News)
+ * - News section with GDELT articles
  * - Legal disclaimer footer
  *
  * State management:
+ * - mode: 'commodity' or 'stock' (determines which UI to show)
  * - selectedCategory: Which commodity category (e.g., "Precious Metals")
  * - selectedCommodity: Which specific commodity (e.g., Gold)
+ * - selectedStock: Which stock is selected (e.g., { symbol: "AAPL", name: "Apple Inc." })
  */
 
 "use client";
@@ -17,12 +20,27 @@ import { useState, useMemo } from 'react';
 import LightweightChart from "./lightweightChart";
 import CustomSelect from "./CustomSelect";
 import NewsList from "./NewsList";
+import StockSearch from "./StockSearch";
 import { commodityCategories } from "./commodityConfig";
+import { generateStockKeywords } from "./utils/generateStockKeywords";
+
+// TypeScript: Define mode type
+type Mode = 'commodity' | 'stock';
 
 export default function StockDashboard() {
-  // Track which category and commodity are currently selected
+  // STATE 1: Mode (are we viewing a commodity or a stock?)
+  const [mode, setMode] = useState<Mode>('commodity');
+
+  // STATE 2: Track which category and commodity are currently selected
   const [selectedCategory, setSelectedCategory] = useState(commodityCategories[0].name);
   const [selectedCommodity, setSelectedCommodity] = useState(commodityCategories[0].commodities[0]);
+
+  // STATE 3: Track which stock is selected (null when in commodity mode)
+  const [selectedStock, setSelectedStock] = useState<{
+    symbol: string;
+    name: string;
+    exchange: string;
+  } | null>(null);
 
   // Get list of commodities for the selected category
   // useMemo prevents recalculation unless selectedCategory changes
@@ -31,8 +49,20 @@ export default function StockDashboard() {
     return category ? category.commodities : [];
   }, [selectedCategory]);
 
-  // Symbol to pass to chart component (e.g., "GC=F")
-  const tickerToDisplay = selectedCommodity.symbol;
+  // COMPUTED VALUES: Determine what to display based on mode
+  // If stock mode → use stock data
+  // If commodity mode → use commodity data
+  const displaySymbol = mode === 'stock' && selectedStock
+    ? selectedStock.symbol
+    : selectedCommodity.symbol;
+
+  const displayName = mode === 'stock' && selectedStock
+    ? selectedStock.name
+    : selectedCommodity.name;
+
+  const displayKeywords = mode === 'stock' && selectedStock
+    ? generateStockKeywords(selectedStock.name, selectedStock.symbol)
+    : selectedCommodity.keywords;
 
   return (
     <div className="min-h-screen bg-white">
@@ -48,57 +78,70 @@ export default function StockDashboard() {
 
       <main className="max-w-[1200px] mx-auto px-5 md:px-10 py-8">
 
-        {/* Commodity Selectors */}
+        {/* Stock Search (always visible) */}
+        <StockSearch
+          onStockSelect={(stock) => {
+            setSelectedStock({
+              symbol: stock.symbol,
+              name: stock.name,
+              exchange: stock.exchange
+            });
+            setMode('stock');
+          }}
+        />
+
+        {/* Commodity Selectors (always visible) */}
         <div className="flex flex-col md:flex-row gap-4 mb-8 p-4 border border-[#D0D0D0] bg-[#F5F5F5]">
-          {/* Category dropdown (e.g., Precious Metals, Energy) */}
-          <CustomSelect
-            id="category-select"
-            label="Category"
-            value={selectedCategory}
-            options={commodityCategories.map(cat => ({
-              label: cat.name,
-              value: cat.name,
-            }))}
-            onChange={(newCategoryName) => {
-              setSelectedCategory(newCategoryName);
-              // When category changes, auto-select first commodity in that category
-              const newCategory = commodityCategories.find(cat => cat.name === newCategoryName);
-              if (newCategory && newCategory.commodities.length > 0) {
-                setSelectedCommodity(newCategory.commodities[0]);
-              }
-            }}
-          />
+            {/* Category dropdown (e.g., Precious Metals, Energy) */}
+            <CustomSelect
+              id="category-select"
+              label="Category"
+              value={selectedCategory}
+              options={commodityCategories.map(cat => ({
+                label: cat.name,
+                value: cat.name,
+              }))}
+              onChange={(newCategoryName) => {
+                setSelectedCategory(newCategoryName);
+                // When category changes, auto-select first commodity in that category
+                const newCategory = commodityCategories.find(cat => cat.name === newCategoryName);
+                if (newCategory && newCategory.commodities.length > 0) {
+                  setSelectedCommodity(newCategory.commodities[0]);
+                }
+              }}
+            />
 
-          {/* Commodity dropdown (e.g., Gold, Silver) */}
-          <CustomSelect
-            id="commodity-select"
-            label="Commodity"
-            value={selectedCommodity.name}
-            options={currentCommodities.map(commodity => ({
-              label: commodity.name,
-              value: commodity.name,
-            }))}
-            onChange={(commodityName) => {
-              const newCommodity = currentCommodities.find(c => c.name === commodityName);
-              if (newCommodity) {
-                setSelectedCommodity(newCommodity);
-              }
-            }}
-          />
+            {/* Commodity dropdown (e.g., Gold, Silver) */}
+            <CustomSelect
+              id="commodity-select"
+              label="Commodity"
+              value={selectedCommodity.name}
+              options={currentCommodities.map(commodity => ({
+                label: commodity.name,
+                value: commodity.name,
+              }))}
+              onChange={(commodityName) => {
+                const newCommodity = currentCommodities.find(c => c.name === commodityName);
+                if (newCommodity) {
+                  setSelectedCommodity(newCommodity);
+                  setMode('commodity'); // Switch back to commodity mode
+                }
+              }}
+            />
         </div>
-
-        <h2 className="text-xl font-semibold mb-4 text-black">{selectedCommodity.name} ({tickerToDisplay})</h2>
 
         {/* Main Chart Area */}
         <LightweightChart
-          symbol={tickerToDisplay}
-          commodityName={selectedCommodity.name}
+          symbol={displaySymbol}
+          commodityName={displayName}
+          isStock={mode === 'stock'}
+          exchange={mode === 'stock' && selectedStock ? selectedStock.exchange : undefined}
         />
 
         {/* News Section */}
         <NewsList
-          keywords={selectedCommodity.keywords}
-          commodityName={selectedCommodity.name}
+          keywords={displayKeywords}
+          commodityName={displayName}
         />
       </main>
 
